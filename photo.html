@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>选择图片</title>
+</head>
+<body>
+<div id="app2">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            &times;
+        </button>
+        <h4 class="modal-title" id="myModalLabel">
+            选择图片
+        </h4>
+    </div>
+    <div class="modal-body">
+        <div class="tab" style="margin-top: 0">
+            <ul id="myTab" class="nav nav-tabs">
+                <li class="active">
+                    <a href="#image-wx" data-toggle="tab">微信素材</a>
+                </li>
+                <!--<li>-->
+                <!--<a href="#image-other" data-toggle="tab">第三方素材</a>-->
+                <!--</li>-->
+            </ul>
+        </div>
+
+
+        <div id="myTabContent" class="tab-content" style="margin-top: 10px">
+            <div class="tab-pane fade in active" id="image-wx">
+                <div class="wx-image-top">
+                    <div class="upload-count">
+                        <span style="font-size: 12px;color: #c2c2c2;">已选 <span class="sc"
+                                                                               style="color: #44b549">{{picObject.selectCount}}</span> 个，可选100个</span>
+                    </div>
+                    <div class="upload-btn">
+                        <span style="font-size: 12px;color: #c2c2c2;padding-right: 10px;">大小不超过5M</span>
+                        <button class="btn btn-success" @click="upload">本地上传</button>
+
+                        <input type="file" name="media" id="media" style="display:none" multiple
+                               accept="image/gif,image/jpeg,image/jpg,image/png,image/svg" @change="uploadFile">
+                    </div>
+                </div>
+
+                <div class="photo-list">
+                    <div class="item" v-for="(item,index) of picObject.picList" :key="index" @click.stop="select($event,item)">
+                        <div class="pzz hide">
+                            <i class="iconfont icon-successful"></i>
+                        </div>
+                        <div class="p">
+                            <img :src="baseUrl+item.mediaUrl" alt="" width="120" height="95">
+                        </div>
+                        <span>{{item.mediaName}}</span>
+                    </div>
+
+                </div>
+
+
+                <div class="page"  v-if="picObject.total>0" style="text-align: center">
+                    <ul class="pagination">
+                        <li @click="page(picObject.currPage-1)"><a href="#">&laquo;</a></li>
+
+                        <li :class="{active:n==picObject.currPage}" @click="page(n)" v-for="n in (picObject.beginPage,picObject.endPage)" :key="n" v-if="n>=picObject.beginPage"><a href="#">{{n}}</a></li>
+                        <li @click="page(picObject.currPage+1)"><a href="#">&raquo;</a></li>
+                    </ul>
+                </div>
+
+            </div>
+            <div class="tab-pane fade in" id="image-other">
+                <p>其他</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消
+        </button>
+        <button type="button" class="btn btn-primary" @click="selectPhoto">
+            确定
+        </button>
+    </div>
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: "#app2",
+        data: {
+            baseUrl: "http://localhost:8080",
+            picObject: {
+                currPage: 1,
+                size: 12,
+                picList: [],
+                total: 0,
+                selectCount: 0,
+                isShow: false,
+                selectList: [],
+                totalPage: 0,
+                beginPage: 1,
+                endPage: 5
+            },
+            flag:""
+        },
+        created() {
+            $('body').on('hidden.bs.modal', '#ajax1', function () {
+                $(this).removeData('bs.modal');
+            });
+            var $this=this;
+            $('body').on('shown.bs.modal','#ajax1', function (event) {
+                var button = $(event.relatedTarget) // 触发事件的按钮  
+                var flag = button.data('flag') // 解析出flag内容  
+                $this.flag=flag;
+            })
+        },
+        mounted() {
+            //查询图片列表
+            this.showMedia();
+        },
+        methods: {
+            showMedia() {
+                var $this = this;
+                $.ajax({
+                    url: this.baseUrl + "/model/material/find_all_media.json",
+                    data: {page: $this.picObject.currPage, size: $this.picObject.size},
+                    dataType: "json",
+                    success: function (res) {
+                        console.log(res);
+                        $this.picObject.isFirst = false;
+                        if (res.code == 200) {
+                            $this.picObject.picList = res.dataList;
+                            $this.picObject.total = res.count;
+                            $this.picObject.totalPage = Math.ceil($this.picObject.total / $this.picObject.size);
+                            if ($this.picObject.totalPage < $this.picObject.endPage) {
+                                $this.picObject.endPage = $this.picObject.totalPage;
+                            }
+                        }
+                    },
+                    error: function () {
+                        alert("图片加载失败....");
+                    }
+                })
+            },
+            page(page) {
+                this.clearSelect();
+                var $this = this;
+                if (!(page <= 0) && !(page > this.picObject.totalPage)) {
+                    if (page > 3 && (page + 2) <= $this.picObject.totalPage) {
+                        $this.picObject.beginPage = page - 2;
+                        $this.picObject.endPage = page + 2;
+
+                    } else if (page <= 3) {
+                        $this.picObject.beginPage = 1;
+                        $this.picObject.endPage = 5;
+                    }
+                    this.picObject.currPage = page;
+                    this.showMedia();
+                }
+            },
+            select(e,item){
+                console.log(window.location.href)
+                var $this=this;
+                var target=e.currentTarget;
+                if ($(target).find(".pzz").hasClass("show")) {
+                    //取消选中
+                    $(target).find(".pzz").removeClass("show").addClass("hide");
+                    this.picObject.selectCount--;
+                    $this.picObject.selectList.forEach(function(i,index){
+                        if(item.mediaId==i.mediaId){
+                            $this.picObject.selectList.splice(index,1);
+                        }
+                    });
+                } else {
+                    //选中
+                    if($this.flag=="one"){
+                        //选择封面 只能选择一张
+                        $(".photo-list").find(".pzz").removeClass("show").addClass("hide");
+                        this.picObject.selectCount=0;
+                    }
+                    $(target).find(".pzz").removeClass("hide").addClass("show");
+                    this.picObject.selectCount++;
+                    this.picObject.selectList.push({
+                        mediaId:item.mediaId,
+                        mediaUrl:item.mediaUrl,
+                        realUrl:item.realUrl
+                    });
+                }
+            },
+            upload() {
+                $("#media").trigger("click");
+            },
+            uploadFile() {
+                var $this = this;
+                //创建formdata对象
+                var formData = new FormData();
+                $.each($('#media')[0].files, function (index, item) {
+                    formData.append("media", item);
+                });
+                formData.append("type", "image");
+                $.ajax({
+                    url: $this.baseUrl + "/model/material/upload_media.json",
+                    type: "post",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    clearForm: true,
+                    success(res) {
+                        if (res.code == 200) {
+                            alert("上传成功");
+                            //刷新图片列表
+                            $this.showMedia();
+                        } else {
+                            alert("上传失败");
+                        }
+                    },
+                    error(data, status, e) {
+                        alert("上传出错啦");
+                    }
+                })
+            },
+            selectPhoto(){
+                var $this=this;
+                if($this.flag=="one"){
+                    //设置图片到封面
+                    app1.$data.mediaNews=Object.assign({},app1.$data.mediaNews,{
+                        thumbMediaLocalUrl:$this.picObject.selectList[0].mediaUrl,
+                        thumMediaUrl:$this.picObject.selectList[0].realUrl,
+                        thumbMediaId:$this.picObject.selectList[0].mediaId,
+                        showCoverPic:0,
+                    });
+
+                }else{
+                    //设置图片到富文本
+                    //获取选择的图片
+                    var selectList=this.picObject.selectList;
+                    var value = editor.getValue();
+                    var imgHtml="";
+                    selectList.forEach(function(i,index){
+                        var img="<br/><img src='"+$this.baseUrl+i.mediaUrl+"'/>";
+                        imgHtml+=img;
+                    });
+                    value+=imgHtml;
+                    editor.setValue(value);
+                }
+                $("#ajax1").modal('hide');
+
+            },
+            //清除选择的图片
+            clearSelect(){
+                //取消已选择的
+                $(".photo-list").find(".pzz").removeClass("show").addClass("hide");
+                //清除data数据
+                this.picObject.selectList=[];
+                this.picObject.selectCount=0;
+            },
+            getQueryParam(v) {
+                var reg = new RegExp('(^|&)' + v + '=([^&]*)(&|$)', 'i');
+                var r = window.location.search.substr(1).match(reg);
+                if (r != null) {
+                    return unescape(r[2]);
+                }
+                return null;
+            },
+        }
+    })
+</script>
+
+</html>

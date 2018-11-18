@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>素材编辑器</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!--vue.js-->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!--bootstrap-->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!--simditor-->
+    <link rel="stylesheet" href="https://simditor.tower.im/assets/styles/simditor.css">
+    <link rel="stylesheet" href="icon/iconfont.css">
+
+    <style>
+        body {
+            background: rgba(194, 194, 194, 0.20);
+        }
+    </style>
+</head>
+<body>
+<div id="app-editor">
+    <div class="container" style="width: 1280px;">
+        <div class="top">
+            <span>
+                <a href="index.html">素材库</a>
+                &nbsp;&nbsp;/&nbsp;&nbsp;
+                新建图文消息
+            </span>
+        </div>
+        <div class="main">
+            <div class="left col-xs-3" style="width: 20%;">
+                <div class="thumb">
+                    <div class="first">
+                        <img :src="baseUrl+mediaNews.thumbMediaLocalUrl" alt="" height="100px"
+                             v-if="mediaNews.thumbMediaLocalUrl">
+                        <div class="title">
+                            {{mediaNews.newsTitle}}
+                        </div>
+                    </div>
+                    <!--<div class="two">-->
+                    <!--<span class="title col-xs-7">-->
+                    <!--标题-->
+                    <!--</span>-->
+                    <!--<div class="img col-xs-5">-->
+                    <!--<img src="images/1.jpg" width="60px" height="60px" alt="">-->
+                    <!--</div>-->
+                    <!--</div>-->
+
+                    <div class="add" style="border-top: 0px">
+                        <span>+</span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="content col-xs-7" style="margin-bottom: 140px;width: 63%">
+                <div class="form-group">
+                    <input type="text" class="form-control" name="title" placeholder="请在这里输入标题"
+                           style="height: 50px;font-size: 20px" v-model="mediaNews.newsTitle">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="author" placeholder="请输入作者"
+                           v-model="mediaNews.newsAuthor">
+                </div>
+                <div class="form-group">
+                    <textarea id="editor" autofocus placeholder=""></textarea>
+                </div>
+
+
+                <div class="form-group">
+                    <label>封面</label>
+                    <div class="cbut" style="padding-top: 5px">
+                        <a class="btn btn-default" href="photo.html" data-flag="one" data-target="#ajax1"
+                           data-toggle="modal">从图片库选择</a>
+                        <button class="btn btn-default" style="margin-left: 30px" @click="upload">上传</button>
+
+                        <input type="file" name="media" id="media" style="display:none"
+                               accept="image/gif,image/jpeg,image/jpg,image/png,image/svg" @change="uploadFile">
+                    </div>
+                </div>
+                <div class="form-group" v-if="mediaNews.thumbMediaLocalUrl">
+                    <img :src="baseUrl+mediaNews.thumbMediaLocalUrl" alt="" width="150">
+                </div>
+                <div class="form-group">
+                    <div class="form-group">
+                        <label for="desc">摘要</label>
+                        <textarea class="form-control" v-model="mediaNews.newsDigest" rows="3" id="desc"
+                                  placeholder="选填，如果不填写默认会抓取正文前54个字"></textarea>
+                    </div>
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" v-model="mediaNews.isShowSource"> 原文链接
+                    </label>
+                    <input type="text" class="form-control" v-if="mediaNews.isShowSource" name="author"
+                           placeholder="请输入原文链接" v-model="mediaNews.contentSourceUrl">
+                </div>
+
+            </div>
+            <div class="right col-xs-2">
+                <div class="btns">
+                    <a href="photo.html" data-target="#ajax1" data-toggle="modal" style="text-decoration: none;">
+                        <div class="item">
+                            <i class="iconfont icon-tupian"></i>
+                            <span>图片素材</span>
+                        </div>
+                    </a>
+                    <!--<a href="image-text.html" data-target="#ajax2" data-toggle="modal" style="text-decoration: none;">-->
+                    <!--<div class="item" style="border-top:0 ">-->
+                    <!--<i class="iconfont icon-shipin"></i>-->
+                    <!--<span>图文素材</span>-->
+                    <!--</div>-->
+                    <!--</a>-->
+                    <div class="item" style="border-top:0 ">
+
+                        <i class="iconfont icon-yinleyinpin"></i>
+                        <span>视频素材</span>
+                    </div>
+                    <a href="search.html" data-target="#search" data-toggle="modal" style="text-decoration: none;">
+                        <div class="item" style="border-top:0 ">
+                            <i class="iconfont icon-tupian"></i>
+                            <span>第三方图库</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ajax1" role="basic" aria-hidden="true" aria-labelledby="选择图片">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="search" role="basic" aria-hidden="true" aria-labelledby="选择第三方图片">
+        <div class="modal-dialog  modal-lg">
+            <div class="modal-content">
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="bottom-btn">
+            <button class="btn btn-success" @click="save">保存</button>
+            <button class="btn btn-primary">预览</button>
+            <button class="btn btn-primary">保存并转发</button>
+        </div>
+    </div>
+</div>
+</body>
+<script src="https://simditor.tower.im/assets/scripts/module.js"></script>
+<script src="https://simditor.tower.im/assets/scripts/hotkeys.js"></script>
+<script src="https://simditor.tower.im/assets/scripts/uploader.js"></script>
+<script src="https://simditor.tower.im/assets/scripts/simditor.js"></script>
+<!-- 实例化编辑器 -->
+<script type="text/javascript">
+    var editor;
+    var app1 = new Vue({
+        el: "#app-editor",
+        data: {
+            mediaId: "",
+            baseUrl: "http://localhost:8080",
+            mediaNews: {},
+            selectPic: [],
+            type: "create"
+        },
+        created() {
+            /**
+             * 关闭modal后清除modal的数据
+             */
+            $("#ajax1,#search").on("hidden.bs.modal", function () {
+                $(this).removeData("bs.modal");
+            });
+        },
+        mounted() {
+            //实例化编辑器
+            editor = new Simditor({
+                textarea: $('#editor')
+                //optional options
+            });
+            let $this = this;
+            $this.mediaId = this.getQueryParam("mediaId");
+            if ($this.mediaId != null && $this.mediaId != undefined) {
+                //查询图文
+                $.ajax({
+                    url: $this.baseUrl + "/model/material/findNewsById.json",
+                    data: {mediaId: $this.mediaId},
+                    dataType: "json",
+                    success: function (res) {
+                        if (res.code == 200) {
+                            $this.mediaNews = res.data;
+                            console.log(editor);
+                            editor.setValue($this.mediaNews.content);
+                            if (res.data.contentSourceUrl != "" && res.data.contentSourceUrl != null) {
+                                $this.mediaNews = Object.assign({}, $this.mediaNews, {
+                                    isShowSource: true
+                                })
+                            }
+                        } else {
+                            alert("查询失败");
+                        }
+                    },
+                    error: function () {
+                        alert("查詢出錯");
+
+                    }
+
+                })
+            }
+        },
+        methods: {
+            getQueryParam(v) {
+                var reg = new RegExp('(^|&)' + v + '=([^&]*)(&|$)', 'i');
+                var r = window.location.search.substr(1).match(reg);
+                if (r != null) {
+                    return unescape(r[2]);
+                }
+                return null;
+            },
+            saveNews() {
+                var $this = this;
+                //创建图文
+                var obj = {
+                    articles: [
+                        {
+                            title: $this.mediaNews.newsTitle,
+                            thumb_media_id: $this.mediaNews.thumbMediaId,
+                            author: $this.mediaNews.newsAuthor,
+                            digest: $this.mediaNews.newsDigest,
+                            show_cover_pic: 0,
+                            content: editor.getValue(),
+                            content_source_url: $this.mediaNews.isShowSource ? $this.mediaNews.contentSourceUrl : ""
+                        }
+                    ]
+                };
+
+                console.log(obj);
+                $.ajax({
+                    url: this.baseUrl + "/model/material/saveNews.json",
+                    dataType: "json",
+                    method: "post",
+                    data: {"newsData": JSON.stringify(obj)},
+                    success(res) {
+                        if(res.code==200){
+                            alert("保存成功");
+                            $this.mediaId = res.data.mediaId;
+                            window.location.href = "editor.html?mediaId=" + $this.mediaId;
+                        }else{
+                            alert("保存失败");
+                        }
+                    }
+                })
+            },
+            updateNews(mediaId) {
+                var $this = this;
+                //图文json
+                var obj = {
+                    media_id: mediaId,
+                    index: 0,
+                    articles:
+                        {
+                            title: $this.mediaNews.newsTitle,
+                            thumb_media_id: $this.mediaNews.thumbMediaId,
+                            author: $this.mediaNews.newsAuthor,
+                            digest: $this.mediaNews.newsDigest,
+                            show_cover_pic: 0,
+                            content: editor.getValue(),
+                            content_source_url: $this.mediaNews.isShowSource ? $this.mediaNews.contentSourceUrl : ""
+                        }
+
+                };
+
+                console.log(obj);
+                $.ajax({
+                    url: this.baseUrl + "/model/material/updateNews.json",
+                    dataType: "json",
+                    method: "post",
+                    data: {"newsData": JSON.stringify(obj), "mediaId": mediaId},
+                    success(res) {
+                        if(res.code==200){
+                            alert("保存成功");
+                        }else{
+                            alert("保存失败");
+                        }
+                        // window.location.href="editor.html?mediaId="+$this.mediaId;
+                    }
+                })
+            },
+            save() {
+                var $this = this;
+                var value = editor.getValue();
+                //如果存在media_id 则修改图文
+                //如果不存在 则创建图文
+                //参数校验
+                if (this.mediaNews.newsTitle == "" || this.mediaNews.newsTitle == undefined || this.mediaNews.newsTitle == null) {
+                    alert("请输入图文标题");
+                    return;
+                } else if (value == "" || value == undefined || value == null) {
+                    alert("请输入图文内容");
+                    return;
+                }
+                else if (this.mediaNews.thumbMediaId == "" || this.mediaNews.thumbMediaId == undefined || this.mediaNews.thumbMediaId == null) {
+                    alert("请上传封面");
+                    return;
+                }
+
+                //拼接json数据
+                if (this.mediaId != "" && this.mediaId != null) {
+                    //修改
+                    this.updateNews(this.mediaId)
+                }
+                else if (this.mediaNews.mediaId == undefined || this.mediaNews.mediaId == null || this.mediaNews.mediaId == "") {
+                    //添加图文
+                    this.saveNews();
+
+                } else {
+                    //修改
+                    this.updateNews(this.mediaId)
+                }
+            },
+            upload() {
+                $("#media").click();
+            },
+            uploadFile() {
+                var $this = this;
+                //创建formdata对象
+                var formData = new FormData();
+                $.each($('#media')[0].files, function (index, item) {
+                    formData.append("media", item);
+                });
+                formData.append("type", "image");
+                $.ajax({
+                    url: $this.baseUrl + "/model/material/upload_media.json",
+                    method: "post",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    clearForm: true,
+                    success(res) {
+                        if (res.code == 200) {
+                            alert("上传成功");
+                            console.log(res);
+                            //设置封面
+                            $this.mediaNews = Object.assign({}, $this.mediaNews, {
+                                thumbMediaLocalUrl: res.data.localUrl,
+                                thumMediaUrl: res.data.mediaUrl,
+                                thumbMediaId: res.data.mediaId,
+                                showCoverPic: 0,
+                            });
+                        } else {
+                            alert("上传失败");
+                        }
+                    },
+                    error(data, status, e) {
+                        alert("上传出错啦");
+                    }
+                })
+            },
+        }
+    })
+
+
+</script>
+</html>

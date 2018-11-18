@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>微信素材管理</title>
+    <!--vue.js-->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!--bootstrap-->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="icon/iconfont.css">
+</head>
+<body>
+<div class="container" id="app">
+    <h3>素材管理</h3>
+    <div class="tab">
+        <ul id="myTab" class="nav nav-tabs">
+            <li class="active">
+                <a href="#image-text" data-toggle="tab">
+                    图文素材</a>
+            </li>
+            <li @click="showMedia"><a href="#pic" data-toggle="tab">图片素材</a></li>
+            <li class="dropdown">
+            <li><a href="#voice" data-toggle="tab">语音</a></li>
+            <li><a href="#video" data-toggle="tab">视频</a></li>
+            </li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade in active" id="image-text">
+                <div class="item-top row">
+                     <span class="item-text col-xs-6">
+                        图文消息 （共{{newsObject.count}}条）
+                    </span>
+                    <div class="search col-xs-3" style="margin: auto">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="标题">
+                            <span class="input-group-btn">
+                                 <button class="btn btn-default" type="button"><i class="iconfont icon-sousuo"
+                                                                                  style="font-size: 14px"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-xs-3" style="text-align: center">
+                        <button onclick="window.location.href='editor.html'" class="but btn-success create-btn">新建图文素材
+                        </button>
+
+                        <button  class="but btn-primary create-btn"
+                                style="margin-left: 20px;text-align: center" @click="sync('news')">同步
+                        </button>
+
+                    </div>
+                </div>
+                <div class="tw-list row">
+                    <div class="tw-item" v-for="(item,index) of newsObject.newsList" :key="index">
+                        <div class="title">{{item.newsTitle}}</div>
+                        <div class="cover">
+                            <img :src="baseUrl+item.thumbMediaLocalUrl" alt="" height="160">
+                        </div>
+                        <div class="desc" style="height: 80px">
+                            {{item.newsDigest}}
+                        </div>
+                        <div class="create-time">
+                            <span class="col-xs-8" style="padding:0">更新于 {{item.updateTime}}</span>
+                            <span class="icon col-xs-4">
+                               <a :href="'editor.html?mediaId='+item.mediaId+'&type=update'"><i class="iconfont icon-jianzhuanquan"></i></a>
+                                <a @click="deleteNews(item.mediaId)"><i class="iconfont icon-shanchu"></i></a>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="page" v-if="newsObject.count>0">
+                    <ul class="pagination">
+                        <ul class="pagination">
+                            <li @click="pageForNews(newsObject.currPage-1)"><a href="#">&laquo;</a></li>
+
+                            <li :class="{active:n==newsObject.currPage}" @click="pageForNews(n)" v-for="n in (newsObject.beginPage,newsObject.endPage)" :key="n" v-if="n>=newsObject.beginPage"><a href="#">{{n}}</a></li>
+                            <li @click="pageForNews(newsObject.currPage+1)"><a href="#">&raquo;</a></li>
+                        </ul>
+                    </ul>
+                </div>
+
+            </div>
+            <div class="tab-pane fade" id="pic">
+                <div class="item-top row">
+                     <span class="item-text col-xs-9">
+                        图片 （共{{picObject.total}}条）
+                    </span>
+                    <div class="col-xs-3" style="text-align: right">
+                        <span style="font-size: 12px;color: #c2c2c2;padding-right: 10px;">大小不超过5M</span>
+                        <button id="upload" class="but btn-success create-btn" @click="upload">上传</button>
+                        <button id="sync" class="but btn-primary create-btn"
+                                style="margin-left: 20px;text-align: center" @click="sync('image')">同步
+                        </button>
+
+                        <input type="file" name="media" id="media" style="display:none" multiple
+                               accept="image/gif,image/jpeg,image/jpg,image/png,image/svg" @change="uploadFile">
+                    </div>
+                </div>
+                <div class="batch" v-if="picObject.isShow">
+                    <span>已选择 <span class="count" style="color: red">{{picObject.selectCount}}</span> 个图片</span>
+                    <a class="selectAll" style="" @click="selectAll">全部选中</a>
+                    <a class="UselectAll" @click="UselectAll">取消选中</a>
+                    <a class="batchDelete" @click="batchDelete">批量删除</a>
+
+                </div>
+                <div class="pic-list">
+                    <div class="pic-item" v-for="(item,index) of picObject.picList" :key="index">
+                        <span class="mediaId" style="display: none">{{item.mediaId}}</span>
+                        <div class="img">
+                            <img :src="baseUrl+item.mediaUrl" alt="" width="180" height="100">
+                        </div>
+                        <div class="select">
+                            <input type="checkbox" class="select-pic" @click="select($event,item.mediaId)">
+                        </div>
+                        <div class="cz">
+                            <a style="color: rgb(16, 133, 255)" @click="deleteMedia(item.mediaId)"><i class="iconfont icon-shanchu"></i></a>
+                        </div>
+                        <span class="file-name">{{item.mediaName}}</span>
+                    </div>
+
+                </div>
+                <div class="page"  v-if="picObject.total>0">
+                    <ul class="pagination">
+                        <li @click="page(picObject.currPage-1)"><a href="#">&laquo;</a></li>
+
+                        <li :class="{active:n==picObject.currPage}" @click="page(n)" v-for="n in (picObject.beginPage,picObject.endPage)" :key="n" v-if="n>=picObject.beginPage"><a href="#">{{n}}</a></li>
+                        <li @click="page(picObject.currPage+1)"><a href="#">&raquo;</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="voice">
+                <p>语音</p>
+            </div>
+            <div class="tab-pane fade" id="video">
+                <p>视频
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="js/index.js">
+</script>
+</html>

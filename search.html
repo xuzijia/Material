@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>第三方素材库</title>
+</head>
+<body>
+<div id="app1">
+
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            &times;
+        </button>
+        <h4 class="modal-title" id="myModalLabel">
+            选择第三方素材
+        </h4>
+    </div>
+    <div class="modal-body">
+        <div class="input-group col-xs-5 col-xs-offset-7">
+            <input type="text" class="form-control" v-model="searchQuery" placeholder="搜索您需要的素材吧～">
+            <span class="input-group-btn">
+                                 <button class="btn btn-default" type="button" @click="search"><i class="iconfont icon-sousuo"
+                                                                                  style="font-size: 14px"></i></button>
+                            </span>
+        </div>
+        <div class="tab" style="margin-top: 0">
+            <ul id="myTab" class="nav nav-tabs">
+                <li class="active">
+                    <a href="#image-wx" data-toggle="tab">图库</a>
+                </li>
+            </ul>
+        </div>
+
+
+        <div id="myTabContent" class="tab-content" style="margin-top: 10px">
+            <div class="tab-pane fade in active" id="image-wx">
+                <div class="wx-image-top">
+                    <div class="upload-count">
+                        <span style="font-size: 12px;color: #c2c2c2;">已选 <span class="sc"
+                                                                               style="color: #44b549">{{count}}</span> 个，可选1个</span>
+                    </div>
+                </div>
+
+                <div class="photo-list">
+                    <div class="item noborder" @click="select($event,item.middleURL)" v-for="(item,index) of imgList" :key="index">
+                        <div class="pzz hide spzz">
+                            <i class="iconfont icon-successful"></i>
+                        </div>
+                        <div class="p">
+                            <img :src="item.middleURL" alt="" width="130" height="130">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="page" style="text-align: center">
+                    <span style="display: block">{{currPage}} / {{totalPage}}</span>
+                    <ul class="pagination">
+                        <li :class="{disabled:currPage==1}" @click="prev"><a href="#" >上一页</a></li>
+                        <li :class="{disabled:currPage==totalPage}" @click="next"><a href="#" >下一页</a></li>
+                    </ul>
+                </div>
+
+            </div>
+            <div class="tab-pane fade in" id="image-other">
+                <p>其他</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消
+        </button>
+        <button type="button" class="btn btn-primary" @click="ok">
+            确定
+        </button>
+    </div>
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app1',
+        data: {
+            count:0,
+            imgList:[],
+            currPage:1,
+            dataSize:12,
+            totalPage:100,
+            pn:0,
+            searchQuery:"",
+            selectPic:[]
+        },
+        created(){
+            $('body').on('hidden.bs.modal', '#search', function () {
+                $(this).removeData('bs.modal');
+            });
+        },
+        mounted() {
+            //默认从第一页开始 查找12张
+            this.getData(this.pn,this.dataSize);
+
+        },
+        methods:{
+            //只能选择一张图片
+            select(event,url){
+                var e=$(event.target).parents(".item");
+                console.log(e);
+                if (e.find(".pzz").hasClass("show")) {
+                    //取消选中
+                    e.find(".pzz").removeClass("show").addClass("hide");
+                    this.selectPic=[];
+                    this.count=0;
+                } else {
+                    //取消其他选择
+                    $(".photo-list").find(".pzz").removeClass("show").addClass("hide");
+                    //选中当前
+                    e.find(".pzz").removeClass("hide").addClass("show");
+                    this.selectPic=[];
+                    this.selectPic.push(url);
+                    this.count=1;
+                }
+            },
+            prev(){
+                this.clearSelect();
+                if(this.currPage!=1){
+                    //更改当前分页 -1
+                    this.currPage--;
+                    this.pn-=this.dataSize;
+                    this.getData(this.pn,this.dataSize);
+
+                }
+            },
+            next(){
+                this.clearSelect();
+                if(this.currPage!=this.totalPage){
+                    //更改当前分页 +1
+                    this.currPage++;
+                    this.pn+=this.dataSize;
+                    this.getData(this.pn,this.dataSize);
+                }
+            },
+            search(){
+                this.getData(this.pn,this.dataSize);
+                this.currPage=1;
+            },
+            getData(pn,rn){
+                //获取第三方图片
+                const url="https://image.baidu.com/search/acjson";
+                var $this=this;
+                const data={
+                    tn:"resultjson_com",
+                    ipn:"rj",
+                    fp:"result",
+                    word:this.searchQuery==""?"表情包":this.searchQuery,
+                    pn:pn,
+                    rn:rn
+                };
+                $.ajax({
+                    url:url,
+                    data:data,
+                    dataType:"jsonp",
+                    success:function(res){
+                        $this.imgList=res.data;
+                        $this.totalPage=parseInt(res.listNum/$this.dataSize);
+                        $this.imgList.pop();
+                    },error:function(){
+                        alert("图片加载失败")
+                    }
+                })
+            },
+            ok(){
+                //设置图片到富文本
+                var value = editor.getValue();
+                var img="<img src='"+this.selectPic[0]+"'/>";
+                value+=img;
+                editor.setValue(value);
+                $("#search").modal('hide');
+            },
+            //清除选择的图片
+            clearSelect(){
+                //取消已选择的
+                $(".photo-list").find(".pzz").removeClass("show").addClass("hide");
+                //清除data数据
+                this.selectPic=[];
+                this.count=0;
+            }
+        }
+    })
+
+
+</script>
+
+</html>

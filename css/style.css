@@ -1,0 +1,363 @@
+/**
+ * @description 图文素材样式文件
+ * @author simple
+ * @date 2018/11/1 10:21
+ */
+
+/**
+-------首页样式--------
+*/
+div{
+    transition: all ease-in-out .3s;
+}
+button{
+    outline:none !important;
+    border: none;
+}
+a{
+    color: #c2c2c2;
+}
+a:hover{
+    text-decoration: none;
+}
+.tab{
+    margin-top: 25px;
+}
+
+#myTabContent{
+    margin-top: 25px;
+}
+/**
+-------图文列表样式--------
+*/
+.item-text{
+    font-size: 20px;
+}
+.item-top .create-btn{
+    padding: 7px;
+    border-radius: 5px;
+}
+.tw-list{
+    margin-top: 35px;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+}
+
+.tw-list .tw-item{
+    background: rgba(194, 194, 194, 0.20);
+    padding: 15px;
+    margin-right:20px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    /*border: solid 1px #c2c2c2;*/
+    cursor: pointer;
+    width: 28%;
+}
+.tw-list .tw-item:hover{
+    box-shadow:1px 4px 5px rgba(188, 166, 189, 0.6);
+}
+.tw-item .title{
+    margin: 8px 0px 12px 0px;
+    font-size: 16px;
+
+}
+.tw-item .cover{
+    text-align: center;
+}
+
+.cover img{
+    width:100% ;
+    border-radius: 5px;
+}
+.tw-item .desc{
+    margin-top: 15px;
+    line-height: 22px;
+    color: #c2c2c2;
+}
+.tw-item .create-time{
+    margin-top: 15px;
+    color: #c2c2c2;
+}
+.tw-item .create-time .icon{
+    font-size: 16px;
+    text-align: right;
+}
+.icon i{
+    margin-left:5px ;
+}
+.page{
+    text-align: right;
+    margin-top: 20px;
+}
+
+
+/**
+-------编辑器样式--------
+*/
+
+.top{
+    color: #c2c2c2;
+    margin: 30px 0px;
+    /*position: fixed;*/
+}
+.top a{
+    color: #44b549 ;
+}
+
+.main{
+    height:100%;
+    overflow:hidden;
+    position: relative;
+}
+.main .left{
+    background-color: #fff;
+    height: 400px;
+    top: 0;
+}
+
+.left .thumb{
+    padding: 15px 10px;
+
+}
+.thumb .first{
+    border: #44b549 2px solid;
+    text-align: center;
+    position: relative;
+    height: 105px;
+    cursor: pointer;
+}
+.thumb .first:hover{
+    border: #44b549 2px solid;
+}
+.thumb img{
+    padding: 5px;
+}
+.first .title{
+    background-color: rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 102px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    padding-top: 75px;
+}
+.thumb .two{
+    width: 100%;
+    border: #c2c2c2 1px solid;
+    height: 65px;
+}
+.two .title{
+    line-height: 65px;
+}
+
+.border-active{
+    border: #44b549 2px solid;
+}
+.thumb .add{
+    border: 1px dashed #c2c2c2;
+    height: 105px;
+    color: #c2c2c2;
+    font-size: 72px;
+    line-height: 90px;
+    text-align: center;
+}
+.add span{
+    cursor: pointer;
+}
+
+
+.main .content{
+    padding: 15px 30px;
+    background-color: #fff;
+    border-left: rgba(194, 194, 194, 0.5) solid 1px;
+    border-right: rgba(194, 194, 194, 0.5) solid 1px;
+}
+.main .right{
+    background-color: #fff;
+    height: 400px;
+    padding: 15px;
+
+}
+.btns .item{
+    cursor: pointer;
+    height: 50px;
+    border: 1px solid #c2c2c2;
+    font-size: 16px;
+    color: rgb(99, 99, 99);
+    line-height: 50px;
+}
+.btns .item i , .btns .item span{
+    margin-left: 15px;
+}
+.btns .item i{
+    font-size: 20px;
+}
+
+.btns .item:hover{
+    color: #44b549;
+    border-color: #44b549;
+}
+.bottom{
+    z-index: 99;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    border-top: rgba(194, 194, 194, 0.69) solid 1px;
+    height: 80px;
+    background-color: #fff;
+}
+.bottom-btn{
+    text-align: center;
+    line-height: 80px;
+}
+.bottom-btn button{
+    margin-left: 25px;
+    font-size: 14px;
+}
+
+/*--------图片素材样式-----------*/
+.pic-list{
+    margin-top: 20px;
+    display: flex;
+    flex-flow: row wrap;
+}
+.pic-list .pic-item{
+    width: 16.6%;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis ;
+    margin-bottom: 10px;
+    cursor: pointer;
+    position: relative;
+}
+.pic-item .file-name{
+    display: inline-block;
+    padding-top: 15px;
+    color: #2b2b2b;
+}
+.pic-item .select{
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    cursor: pointer;
+}
+.pic-item .select input{
+    display: none;
+}
+.pic-item .cz{
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: none;
+}
+.pic-item .img{
+    height: 105px;
+    line-height: 105px;
+    padding-top: 5px;
+}
+.pic-item:hover{
+    background-color: rgba(0, 0, 0, 0.08);
+}
+.pic-item:hover .cz{
+    display: block;
+}
+.pic-item:hover .select input{
+    display: block;
+}
+.batch{
+    margin-top: 15px;
+}
+.batch a{
+    color: rgb(16, 133, 255);
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+/*
+  图片选择框样式
+ */
+.wx-image-top{
+    display: flex;
+}
+.wx-image-top .upload-btn{
+    width: 70%;
+    text-align: right;
+}
+.wx-image-top .upload-count{
+    width: 30%;
+    line-height: 34px;
+}
+
+.photo-list{
+    display: flex;
+    flex-flow: row wrap;
+}
+.photo-list .item{
+    width: 120px;
+    height: 120px;
+    border:  1px solid #e0e0e0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    margin-right: 10px;
+    margin-top: 15px;
+    border-radius: 5px;
+
+}
+.photo-list .pzz{
+    width: 120px;
+    height: 95px;
+    background-color: rgba(194, 194, 194, 0.8);
+    position: absolute;
+    top: 0;
+    right: 0;
+
+}
+.pzz i{
+    font-size: 36px;
+    line-height: 95px;
+    text-align: center;
+    color: #ffffff;
+}
+.photo-list .item span{
+    line-height: 25px;
+    padding-left:5px;
+}
+
+/*图文列表*/
+table tr{
+    cursor: pointer;
+}
+
+/*
+ 图片搜索
+ */
+
+.photo-list .noborder{
+    border: 0;
+    width: 130px;
+    height: 130px;
+
+}
+
+.photo-list .spzz{
+    width: 130px;
+    height: 130px;
+    background-color: rgba(194, 194, 194, 0.8);
+    position: absolute;
+    top: 0;
+    right: 0;
+
+}
+.spzz i{
+    font-size: 36px;
+    line-height: 130px;
+    text-align: center;
+    color: #ffffff;
+}
